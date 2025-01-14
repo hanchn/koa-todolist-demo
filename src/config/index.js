@@ -1,41 +1,38 @@
-#!/usr/bin/env node
-import inquirer from 'inquirer';
-import { spawn } from 'child_process';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
 
-(async () => {
-  // 1. 询问用户选择环境
-  const { env } = await inquirer.prompt([
-    {
-      type: 'list',
-      name: 'env',
-      message: '请选择要启动的环境 (按↑↓选择, 回车确认):',
-      choices: [
-        { name: '开发环境 (dev)', value: 'dev' },
-        { name: '测试环境 (test)', value: 'test' },
-        { name: '预生产环境 (pre)', value: 'pre' },
-        { name: '生产环境 (prod)', value: 'prod' }
-      ],
-      default: 'dev'
-    }
-  ]);
+// 以下两行是为了获取当前文件的目录名(__dirname在ESM中不可直接用)。
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-  console.log(`你选择了环境: ${env}`);
+// 1. 获取当前环境，默认为 'dev'
+const nodeEnv = process.env.NODE_ENV || 'dev';
 
-  // 2. 使用 cross-env 注入 NODE_ENV，再调用 nodemon
-  //   - nodemon 会自动加载 nodemon.json 配置
-  //   - 这样就能在文件变动时自动重启，并带上对应环境变量
-  const child = spawn(
-    'npx', 
-    [
-      'cross-env',
-      `NODE_ENV=${env}`,
-      'nodemon'         // 不加额外参数时, nodemon 会读取 nodemon.json 的exec
-    ], 
-    { stdio: 'inherit' }
-  );
+// 2. 根据 nodeEnv 拼出对应的 env 文件名，如 .env.dev, .env.test 等
+const envFileName = `.env.${nodeEnv}`;
 
-  // 3. 当子进程( nodemon )结束时，让当前脚本也退出
-  child.on('close', (code) => {
-    process.exit(code);
-  });
-})();
+// 3. 计算该文件的完整路径
+const envFilePath = path.resolve(__dirname, '../', envFileName);
+
+// 4. 加载对应的 .env
+dotenv.config({ path: envFilePath });
+
+// 5. 导出配置对象
+export default {
+  // 当前环境
+  env: nodeEnv,
+
+  // 从环境变量中读取端口，默认3000
+  port: parseInt(process.env.PORT ?? '3000', 10),
+
+  // 数据库相关的示例
+  db: {
+    host: process.env.DB_HOST ?? 'localhost',
+    user: process.env.DB_USER ?? 'root',
+    pass: process.env.DB_PASS ?? '',
+  },
+
+  // 其他自定义配置
+  // ...
+};
