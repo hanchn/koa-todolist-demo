@@ -1,15 +1,14 @@
-// src/app.js (Koa 主程序)
+// 以 Koa + koa-views + EJS 举例
 import Koa from 'koa';
-import config from './config/index.js';
+import views from 'koa-views';
+import path from 'path';
 
 const app = new Koa();
 
-// 一个简单的中间件示例
+app.use(views(path.join(__dirname, 'views'), { extension: 'ejs' }));
+
 app.use(async (ctx) => {
-  ctx.body = `Hello, Koa! 
-  ENV = ${config.env}, 
-  DB_HOST = ${config.db.host}, 
-  PORT = ${config.port}`;
+  await ctx.render('index', { title: 'Hello Koa EJS' });
 });
 
-export default app;
+app.listen(3000);
