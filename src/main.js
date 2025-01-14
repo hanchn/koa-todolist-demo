@@ -1,5 +1,9 @@
-import App from './app.js';
+// src/main.js (项目启动文件)
+import app from './app.js';
+import config from './config/index.js';
 
-App.listen(3000, () => {
-  console.log('Server running on port 3000');
+app.listen(config.port, () => {
+  console.log(
+    `Koa server started in [${config.env}] mode, listening on port ${config.port}`
+  );
 });
