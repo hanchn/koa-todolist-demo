@@ -1,0 +1,20 @@
+{
+  "name": "my-koa-project",
+  "version": "1.0.0",
+  "scripts": {
+    // 开发模式：自动重启、加载 .env 中的开发环境变量
+    "dev": "nodemon app.js",
+
+    // 生产模式：也可以加上 cross-env 等等
+    "start": "NODE_ENV=production node app.js"
+  },
+  "dependencies": {
+    "koa": "^2.14.1",
+    "dotenv": "^16.3.1"
+    // 其他依赖...
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+    // 其他开发依赖...
+  }
+}
