@@ -3,7 +3,11 @@ import Koa from 'koa';
 import bodyParser from 'koa-bodyparser';
 import render from 'koa-ejs';
 import path from 'path';
+import Router from '@koa/router';
 import { fileURLToPath } from 'url';
+import errorHandler from './middlewares/errorHandler.js';
+import responseFormatter from './middlewares/responseFormatter.js';
+import routeMiddleware from './middlewares/routeMiddleware.js';
 // 以下两行是为了获取当前文件的目录名(__dirname在ESM中不可直接用)。
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -24,6 +28,15 @@ render(app, {
   cache: false,
   debug: false
 });
+
+// 集成错误处理中间件
+app.use(errorHandler);
+
+// 集成响应格式化中间件（仅适用于 API 路由）
+app.use(responseFormatter);
+
+// 集成路由中间件
+app.use(routeMiddleware);
 
 app.use(async (ctx) => {
   const { request: { url } } = ctx;
